@@ -15,6 +15,15 @@ test("bold maps a latin letter and leaves arabic untouched", () => {
   assert.equal(styleApplies(bold, "Ahmed"), true);
 });
 
+test("underline, strike, and glitch keep the letters and add combining marks", () => {
+  assert.equal(getStyle("underline")?.apply("نور"), "ن\u0332و\u0332ر\u0332");
+  assert.equal(getStyle("underline")?.apply("Nora"), "N\u0332o\u0332r\u0332a\u0332");
+  assert.equal(getStyle("strike")?.apply("نور"), "ن\u0336و\u0336ر\u0336");
+  assert.equal(getStyle("strike")?.apply("Nora"), "N\u0336o\u0336r\u0336a\u0336");
+  assert.equal(getStyle("glitch")?.apply("نور"), "ن\u0335\u0332و\u0335\u0332ر\u0335\u0332");
+  assert.equal(getStyle("glitch")?.apply("Nora"), "N\u0335\u0332o\u0335\u0332r\u0335\u0332a\u0335\u0332");
+});
+
 test("glitch is marked as changing letters and uses at most two marks", () => {
   const glitch = getStyle("glitch");
   assert.ok(glitch);

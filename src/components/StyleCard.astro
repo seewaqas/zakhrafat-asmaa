@@ -39,6 +39,7 @@ const over = limitMax !== undefined && length > limitMax;
     }
     <button class="icon-btn" type="button" data-fav aria-pressed="false" aria-label={ui.favAdd}>☆</button>
   </div>
+  <p class="support-flag" data-unsupported-badge hidden>{ui.unsupported}</p>
   <p class="card-output" dir="auto" data-output>{text}</p>
   <button class="btn btn-copy" type="button" data-copy aria-label={`${ui.copyAria} ${name}`}>{ui.copy}</button>
 </li>

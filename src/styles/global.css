@@ -176,7 +176,7 @@ h2 { font-size: 1.35rem; margin: 0 0 0.5rem; }
   content-visibility: auto;
   contain-intrinsic-size: auto 8rem;
 }
-.card-top { display: flex; gap: 0.45rem; align-items: center; }
+.card-top { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
 .card-name { font-weight: 700; }
 .badge {
   background: #f3e2b0;
@@ -185,7 +185,19 @@ h2 { font-size: 1.35rem; margin: 0 0 0.5rem; }
   padding: 0.1rem 0.5rem;
   font-size: 0.78rem;
 }
+.support-flag {
+  margin: 0.45rem 0 0;
+  background: #f3e2b0;
+  color: #6a4b08;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.support-row { margin: 0.2rem 0 0.7rem; }
 .card-output {
+  /* System fonts only, so the preview matches a paste on this device.
+     The glyph check reads this computed family. Keep both in step. */
   font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", "Geeza Pro", Arial, sans-serif;
   font-size: 1.55rem;
   line-height: 1.45;
