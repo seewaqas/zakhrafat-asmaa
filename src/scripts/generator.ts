@@ -1,6 +1,7 @@
 import { stripTashkeel } from "../lib/arabic.ts";
 import { categoryLabel, styleApplies, styleName, STYLES, type Locale } from "../lib/styles.ts";
 import { clampInput, graphemes, visibleLength, MAX_INPUT_GRAPHEMES } from "../lib/transform.ts";
+import { unsupportedOutput } from "./glyphSupport.ts";
 
 const FAV_KEY = "za-favorites";
 
@@ -79,6 +80,14 @@ export function mountGenerator(root: HTMLElement): void {
   const favs = readFavs();
   let category = root.dataset.category || "all";
   let toastTimer = 0;
+  let showUnsupported = false;
+  const outputProbe = root.querySelector<HTMLElement>(".card-output");
+  const fontFamily = outputProbe ? getComputedStyle(outputProbe).fontFamily : "";
+  const isUnsupported = unsupportedOutput(fontFamily);
+  const supportRow = root.querySelector<HTMLElement>("[data-support-row]");
+  const supportButton = root.querySelector<HTMLButtonElement>("[data-show-unsupported]");
+  const showTemplate = root.dataset.showHidden ?? "Show hidden styles ({n})";
+  const hideLabel = root.dataset.hideHidden ?? "Hide unsupported styles";
 
   const showToast = (message: string): void => {
     if (!toast) return;
@@ -116,16 +125,24 @@ export function mountGenerator(root: HTMLElement): void {
     counter.classList.toggle("is-over", hasLimit && length > limitMax);
 
     let visible = 0;
+    let hiddenUnsupported = 0;
     for (const card of list.querySelectorAll<HTMLElement>("[data-id]")) {
       const id = card.dataset.id ?? "";
       const style = styles.get(id);
       const output = card.querySelector<HTMLElement>("[data-output]");
-      if (style && output) output.textContent = text.trim() ? style.apply(text) : "";
+      const styled = style && text.trim() ? style.apply(text) : "";
+      if (output) output.textContent = styled;
+
+      const unsupported = styled.length > 0 && isUnsupported(styled);
+      card.classList.toggle("is-unsupported", unsupported);
+      const flag = card.querySelector<HTMLElement>("[data-unsupported-badge]");
+      if (flag) flag.hidden = !unsupported;
 
       const cats = card.dataset.cats ?? "";
       const categoryOk = category === "all" || (category === "favoritos" ? favs.has(id) : cats.split(" ").includes(category));
       const applies = style ? styleApplies(style, text) : false;
-      const show = categoryOk && applies;
+      if (categoryOk && applies && unsupported) hiddenUnsupported += 1;
+      const show = categoryOk && applies && (!unsupported || showUnsupported);
       card.hidden = !show;
       if (show) visible += 1;
 
@@ -138,7 +155,12 @@ export function mountGenerator(root: HTMLElement): void {
         }
       }
     }
-    if (empty) empty.hidden = visible > 0;
+    if (empty) empty.hidden = visible > 0 || hiddenUnsupported > 0;
+    if (supportRow && supportButton) {
+      supportRow.hidden = hiddenUnsupported === 0;
+      supportButton.textContent = showUnsupported ? hideLabel : showTemplate.replaceAll("{n}", String(hiddenUnsupported));
+      supportButton.setAttribute("aria-pressed", showUnsupported ? "true" : "false");
+    }
   };
 
   const flash = (button: HTMLButtonElement, ok: boolean): void => {
@@ -161,6 +183,11 @@ export function mountGenerator(root: HTMLElement): void {
   };
 
   input.addEventListener("input", render);
+
+  supportButton?.addEventListener("click", () => {
+    showUnsupported = !showUnsupported;
+    render();
+  });
 
   root.querySelector<HTMLButtonElement>("[data-clear]")?.addEventListener("click", () => {
     input.value = "";

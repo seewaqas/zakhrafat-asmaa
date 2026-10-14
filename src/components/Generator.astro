@@ -31,6 +31,8 @@ const length = visibleLength(sample);
   data-error-label={ui.copyError}
   data-toast-label={ui.toast}
   data-count-label={ui.count}
+  data-show-hidden={ui.showHidden}
+  data-hide-hidden={ui.hideHidden}
 >
   <div class="composer">
     <label class="sr-only" for="name-field">{ui.inputLabel}</label>
@@ -69,6 +71,9 @@ const length = visibleLength(sample);
   </div>
   <p class="sample-note" data-sample-note hidden>{ui.sampleNote}</p>
   <p class="empty" data-empty hidden>{ui.emptyFilter}</p>
+  <p class="support-row" data-support-row hidden>
+    <button class="btn" type="button" data-show-unsupported aria-pressed="false">{ui.showHidden.replace("{n}", "0")}</button>
+  </p>
   <ol class="cards" data-cards>
     {STYLES.map((item) => (
       <StyleCard
