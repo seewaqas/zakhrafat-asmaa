@@ -1,0 +1,26 @@
+---
+import { BLANKS } from "../data/blanks.ts";
+import { UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = UI[locale];
+---
+
+<section class="section">
+  <h2>{ui.blanksTitle}</h2>
+  <ul class="blank-list">
+    {BLANKS.map((item) => (
+      <li>
+        <button class="btn" type="button" data-copy-text={item.char} data-copied-label={ui.copied}>{ui.copy}</button>
+        <strong>{locale === "ar" ? item.ar : item.en}</strong>
+        <span class="blank-preview" aria-hidden="true">[{item.char}]</span>
+        <p>{locale === "ar" ? item.noteAr : item.noteEn}</p>
+      </li>
+    ))}
+  </ul>
+</section>

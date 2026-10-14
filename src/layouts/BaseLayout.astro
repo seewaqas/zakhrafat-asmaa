@@ -1,0 +1,63 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { hrefFor } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  title: string;
+  description: string;
+  locale: Locale;
+  slug: string;
+  jsonLd?: string;
+  indexable?: boolean;
+}
+
+const { title, description, locale, slug, jsonLd, indexable = true } = Astro.props;
+const brand = locale === "ar" ? "زخرفة أسماء" : "Zakhrafat Asmaa";
+const fullTitle = title.includes(brand) ? title : `${title} | ${brand}`;
+const canonical = indexable && Astro.site ? new URL(hrefFor(slug, locale), Astro.site).href : undefined;
+const arUrl = indexable && Astro.site ? new URL(hrefFor(slug, "ar"), Astro.site).href : undefined;
+const enUrl = indexable && Astro.site ? new URL(hrefFor(slug, "en"), Astro.site).href : undefined;
+const dir = locale === "ar" ? "rtl" : "ltr";
+---
+
+<!doctype html>
+<html lang={locale} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!indexable && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    {arUrl && enUrl && (
+      <>
+        <link rel="alternate" hreflang="ar" href={arUrl} />
+        <link rel="alternate" hreflang="en" href={enUrl} />
+        <link rel="alternate" hreflang="x-default" href={arUrl} />
+      </>
+    )}
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale === "ar" ? "ar" : "en"} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta name="theme-color" content="#0B1F3A" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline src="/theme-init.js"></script>
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+  </head>
+  <body>
+    <a class="skip" href="#content">{locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}</a>
+    <Header locale={locale} slug={slug} />
+    <main id="content">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    <script>
+      import "../scripts/site.ts";
+    </script>
+  </body>
+</html>

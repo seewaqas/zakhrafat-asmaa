@@ -1,0 +1,90 @@
+---
+import StyleCard from "./StyleCard.astro";
+import { INSERT_SYMBOLS, UI, type Phrase } from "../data/site.ts";
+import { CATEGORIES, styleApplies, STYLES, type Locale } from "../lib/styles.ts";
+import { visibleLength } from "../lib/transform.ts";
+
+interface Props {
+  locale: Locale;
+  sample: string;
+  category?: string;
+  phrases?: readonly Phrase[];
+  limit?: number;
+  limitHint?: string;
+  stripTashkeel?: boolean;
+}
+
+const { locale, sample, category = "all", phrases = [], limit, limitHint, stripTashkeel = false } = Astro.props;
+const ui = UI[locale];
+const length = visibleLength(sample);
+---
+
+<section
+  class="tool"
+  data-generator
+  data-locale={locale}
+  data-sample={sample}
+  data-category={category}
+  data-limit-max={limit}
+  data-copy-label={ui.copy}
+  data-copied-label={ui.copied}
+  data-error-label={ui.copyError}
+  data-toast-label={ui.toast}
+  data-count-label={ui.count}
+>
+  <div class="composer">
+    <label class="sr-only" for="name-field">{ui.inputLabel}</label>
+    <textarea id="name-field" data-input rows="2" dir="auto" placeholder={ui.placeholder} autocomplete="off" autocapitalize="off" spellcheck="false">{sample}</textarea>
+    <div class="actions">
+      <button class="btn btn-gold" type="button" data-decorate>{ui.decorate}</button>
+      <button class="btn" type="button" data-copy-all>{ui.copyAll}</button>
+      <button class="btn" type="button" data-clear>{ui.clear}</button>
+      {stripTashkeel && <button class="btn" type="button" data-strip>{ui.strip}</button>}
+    </div>
+    <p class:list={["counter", limit !== undefined && length > limit && "is-over"]} data-counter>{length} {ui.count}</p>
+    <p class="cap-note" data-cap-note hidden>{ui.hardCap}</p>
+    {limitHint && <p class="fine">{limitHint}</p>}
+  </div>
+  {
+    phrases.length > 0 && (
+      <div class="phrases">
+        {phrases.map((phrase) => (
+          <button class="phrase" type="button" data-phrase={phrase.text}>{phrase.label}</button>
+        ))}
+      </div>
+    )
+  }
+  <div class="insert-row">
+    <span>{ui.insert}</span>
+    {INSERT_SYMBOLS.map((symbol) => (
+      <button class="insert" type="button" data-insert={symbol}>{symbol}</button>
+    ))}
+  </div>
+  <div class="chips" role="toolbar">
+    {CATEGORIES.map((item) => (
+      <button class="chip" type="button" data-chip={item.id} aria-pressed={item.id === category ? "true" : "false"}>
+        {locale === "ar" ? item.ar : item.en}
+      </button>
+    ))}
+  </div>
+  <p class="sample-note" data-sample-note hidden>{ui.sampleNote}</p>
+  <p class="empty" data-empty hidden>{ui.emptyFilter}</p>
+  <ol class="cards" data-cards>
+    {STYLES.map((item) => (
+      <StyleCard
+        item={item}
+        source={sample}
+        locale={locale}
+        limitMax={limit}
+        inactive={category !== "all" && category !== "favoritos" && !item.categories.includes(category)}
+      />
+    ))}
+  </ol>
+  <p class="toast" data-toast role="status" hidden></p>
+  <noscript><p>{ui.noscript}</p></noscript>
+</section>
+
+<script>
+  import { mountGenerator } from "../scripts/generator.ts";
+  for (const root of document.querySelectorAll<HTMLElement>("[data-generator]")) mountGenerator(root);
+</script>

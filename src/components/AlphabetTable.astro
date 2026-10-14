@@ -1,0 +1,44 @@
+---
+import { getStyle } from "../lib/styles.ts";
+import { UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = UI[locale];
+const ids = ["bold", "script", "fraktur", "circled"] as const;
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+---
+
+<section class="section">
+  <h2>{ui.alphabetTitle}</h2>
+  <div class="alpha-wrap">
+    <table class="alpha">
+      <thead>
+        <tr>
+          <th>A</th>
+          {ids.map((id) => <th>{locale === "ar" ? getStyle(id)?.nameAr : getStyle(id)?.nameEn}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {letters.map((letter) => (
+          <tr>
+            <th>{letter}</th>
+            {ids.map((id) => {
+              const style = getStyle(id);
+              const value = style ? style.apply(letter) : letter;
+              return (
+                <td>
+                  <button class="insert" type="button" data-copy-text={value} data-copied-label={ui.copied}>{value}</button>
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,21 @@
+---
+import PageView from "../components/PageView.astro";
+import { contentPages, getPage } from "../data/pages.ts";
+import type { PageDef } from "../data/site.ts";
+
+export function getStaticPaths() {
+  return contentPages().map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+interface Props {
+  page: PageDef;
+}
+
+const { page } = Astro.props;
+if (!getPage(page.slug)) throw new Error(page.slug);
+---
+
+<PageView page={page} locale="ar" />

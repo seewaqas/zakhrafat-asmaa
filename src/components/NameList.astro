@@ -1,0 +1,39 @@
+---
+import { READY_NAMES } from "../data/names.ts";
+import { UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+  group: "ready" | "people" | "clans";
+}
+
+const { locale, group } = Astro.props;
+const ui = UI[locale];
+const names = READY_NAMES.filter((item) => {
+  if (group === "ready") return item.groups.includes("ready") || item.groups.includes("clans") || item.groups.includes("gulf") || item.groups.includes("family");
+  if (group === "clans") return item.groups.includes("clans");
+  return item.groups.includes("people") || item.groups.includes("gulf");
+});
+---
+
+<section class="section">
+  <h2>{ui.namesTitle}</h2>
+  <div class="phrases">
+    {names.map((item) => (
+      <button class="phrase" type="button" data-phrase={item.text}>{item.label}</button>
+    ))}
+  </div>
+</section>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>(".section [data-phrase]")) {
+    button.addEventListener("click", () => {
+      const input = document.querySelector<HTMLTextAreaElement>("[data-input]");
+      if (!input) return;
+      input.value = button.dataset.phrase ?? "";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.focus();
+    });
+  }
+</script>

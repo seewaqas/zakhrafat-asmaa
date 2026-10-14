@@ -1,0 +1,67 @@
+---
+import { contentPages } from "../data/pages.ts";
+import { alternateHref, hrefFor, NAV, UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props;
+const ui = UI[locale];
+const path = Astro.url.pathname;
+const items = NAV[locale];
+
+function current(href: string): "page" | undefined {
+  return path === href ? "page" : undefined;
+}
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="logo" href={hrefFor("", locale)}>
+      <span class="crown" aria-hidden="true">♛</span>
+      <span>
+        <strong>{ui.brand}</strong>
+        <small>{ui.tagline}</small>
+      </span>
+    </a>
+    <div class="bar-tools">
+      <button class="icon-btn" type="button" data-search-open aria-label={ui.search}>⌕</button>
+      <button class="icon-btn" type="button" data-theme-toggle aria-label={ui.theme}>☀</button>
+      <a class="lang" href={alternateHref(slug, locale)} hrefLang={locale === "ar" ? "en" : "ar"}>{ui.lang}</a>
+      <button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">{ui.menu}</button>
+    </div>
+    <nav class="nav" id="site-nav" data-nav aria-label={ui.menu}>
+      {items.map((item) =>
+        "href" in item ? (
+          <a href={item.href} aria-current={current(item.href)}>{item.label}</a>
+        ) : (
+          <details class="menu">
+            <summary>{item.label}</summary>
+            <div class="menu-panel">
+              {item.links.map(([target, label]) => {
+                const href = hrefFor(target, locale);
+                return <a href={href} aria-current={current(href)}>{label}</a>;
+              })}
+            </div>
+          </details>
+        ),
+      )}
+    </nav>
+  </div>
+  <div class="search-panel wrap" data-search-panel hidden>
+    <input data-site-search type="search" placeholder={ui.searchPlaceholder} aria-label={ui.search} />
+    <ul>
+      {contentPages().map((page) => {
+        const copy = page[locale];
+        return (
+          <li>
+            <a href={hrefFor(page.slug, locale)} data-label={copy.h1}>{copy.h1}</a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</header>

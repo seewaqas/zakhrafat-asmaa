@@ -1,0 +1,26 @@
+---
+import { UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+  sample: string;
+}
+
+const { locale, sample } = Astro.props;
+const ui = UI[locale];
+---
+
+<section class="tool" data-usernames data-copied-label={ui.copied}>
+  <h2>{ui.userTitle}</h2>
+  <p class="fine">{ui.userHint}</p>
+  <label class="sr-only" for="user-field">{ui.inputLabel}</label>
+  <input id="user-field" data-user-input value={sample} autocomplete="off" autocapitalize="off" spellcheck="false" />
+  <p class="fine" data-user-arabic hidden>{ui.userArabic}</p>
+  <ul class="user-list" data-user-list></ul>
+</section>
+
+<script>
+  import { mountUsernames } from "../scripts/usernames.ts";
+  for (const root of document.querySelectorAll<HTMLElement>("[data-usernames]")) mountUsernames(root);
+</script>

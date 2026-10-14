@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Generator from "../components/Generator.astro";
+---
+
+<BaseLayout
+  title="الصفحة غير موجودة"
+  description="هذه الصفحة غير موجودة. زخرف اسماً من هنا."
+  locale="ar"
+  slug="404"
+  indexable={false}
+>
+  <article class="wrap">
+    <header class="hero">
+      <p class="eyebrow">404</p>
+      <h1>الصفحة غير موجودة</h1>
+      <p class="lede">الرابط لا يطابق صفحة. الأداة أدناه ما زالت تعمل.</p>
+      <p><a href="/">العودة إلى الرئيسية</a> · <a href="/en/">English</a></p>
+    </header>
+    <Generator locale="ar" sample="نور" />
+  </article>
+</BaseLayout>

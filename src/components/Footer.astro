@@ -1,0 +1,31 @@
+---
+import { FOOTER, hrefFor, UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = UI[locale];
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <strong class="footer-brand">{ui.brand}</strong>
+      <p>{ui.footerAbout}</p>
+    </div>
+    {FOOTER[locale].map((column) => (
+      <div>
+        <h2>{column.title}</h2>
+        <ul>
+          {column.links.map(([slug, label]) => (
+            <li><a href={hrefFor(slug, locale)}>{label}</a></li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+  <p class="fine wrap">© {new Date().getFullYear()} {ui.rights}</p>
+</footer>

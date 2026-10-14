@@ -1,0 +1,26 @@
+---
+import { SYMBOL_GROUPS } from "../data/symbols.ts";
+import { UI } from "../data/site.ts";
+import type { Locale } from "../lib/styles.ts";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = UI[locale];
+---
+
+<section class="section">
+  <h2>{ui.symbolsTitle}</h2>
+  {SYMBOL_GROUPS.map((group) => (
+    <div class="symbol-group">
+      <h3>{locale === "ar" ? group.ar : group.en}</h3>
+      <div class="symbol-row">
+        {group.symbols.map((symbol) => (
+          <button class="insert" type="button" data-copy-text={symbol} data-copied-label={ui.copied}>{symbol}</button>
+        ))}
+      </div>
+    </div>
+  ))}
+</section>

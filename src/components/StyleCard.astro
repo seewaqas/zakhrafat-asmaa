@@ -1,0 +1,44 @@
+---
+import type { Locale, StyleDefinition } from "../lib/styles.ts";
+import { styleApplies, styleName } from "../lib/styles.ts";
+import { visibleLength } from "../lib/transform.ts";
+import { UI } from "../data/site.ts";
+
+interface Props {
+  item: StyleDefinition;
+  source: string;
+  locale: Locale;
+  limitMax?: number;
+  inactive: boolean;
+}
+
+const { item, source, locale, limitMax, inactive } = Astro.props;
+const ui = UI[locale];
+const name = styleName(item, locale);
+const text = item.apply(source);
+const length = visibleLength(text);
+const over = limitMax !== undefined && length > limitMax;
+---
+
+<li
+  class="card"
+  data-id={item.id}
+  data-label={name}
+  data-cats={item.categories.join(" ")}
+  hidden={inactive || !styleApplies(item, source)}
+>
+  <div class="card-top">
+    <span class="card-name" data-name>{name}</span>
+    {item.changesLetters && <span class="badge">{ui.changes}</span>}
+    {
+      limitMax !== undefined && (
+        <span class:list={["card-len", over && "is-over"]} data-len>
+          {length}/{limitMax}
+        </span>
+      )
+    }
+    <button class="icon-btn" type="button" data-fav aria-pressed="false" aria-label={ui.favAdd}>☆</button>
+  </div>
+  <p class="card-output" dir="auto" data-output>{text}</p>
+  <button class="btn btn-copy" type="button" data-copy aria-label={`${ui.copyAria} ${name}`}>{ui.copy}</button>
+</li>
