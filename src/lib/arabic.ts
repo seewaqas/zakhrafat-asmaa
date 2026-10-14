@@ -18,21 +18,27 @@ function isArabicLetter(grapheme: string): boolean {
  * Insert U+0640 only after a dual-joining letter that is not at the end of the word.
  * Lam-alef stays a ligature. Digits, Latin, spaces, and emoji are left alone.
  */
-export function tatweel(input: string): string {
+export function tatweel(input: string, count = 1): string {
+  const mark = "\u0640".repeat(count);
   const parts = graphemes(input);
   let out = "";
   for (let index = 0; index < parts.length; index += 1) {
     const current = parts[index] ?? "";
     const next = parts[index + 1];
     out += current;
-    if (!next || isEmoji(current)) continue;
+    if (!next || isEmoji(current) || mark.length === 0) continue;
     const base = baseChar(current);
     if (!DUAL.has(base)) continue;
     if (!isArabicLetter(next) || isEmoji(next)) continue;
     if (base === "ل" && ALEF.has(baseChar(next))) continue;
-    out += "\u0640";
+    out += mark;
   }
   return out;
+}
+
+/** Two tatweel marks, the longer join used on Saudi nickname lists. */
+export function doubleTatweel(input: string): string {
+  return tatweel(input, 2);
 }
 
 /** Remove Arabic harakat. Tatweel and base letters stay. */

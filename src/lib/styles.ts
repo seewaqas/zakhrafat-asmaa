@@ -1,4 +1,4 @@
-import { addHarakat, tatweel } from "./arabic.ts";
+import { addHarakat, doubleTatweel, tatweel } from "./arabic.ts";
 import {
   applyFrame,
   applyMap,
@@ -212,6 +212,31 @@ function frame(
   return style(id, nameAr, nameEn, categories, (input) => applyFrame(body ? body(input) : input, prefix, suffix));
 }
 
+function tatweelFrame(
+  id: string,
+  nameAr: string,
+  nameEn: string,
+  prefix: string,
+  suffix: string,
+  categories: string[],
+): StyleDefinition {
+  return frame(`${id}-tatweel`, `${nameAr} مطوّل`, `${nameEn} tatweel`, prefix, suffix, categories, tatweel);
+}
+
+function side(
+  id: string,
+  nameAr: string,
+  nameEn: string,
+  prefix: string,
+  suffix: string,
+  categories: string[],
+  withTatweel = false,
+): StyleDefinition[] {
+  const plain = frame(id, nameAr, nameEn, prefix, suffix, categories);
+  if (!withTatweel) return [plain];
+  return [plain, tatweelFrame(id, nameAr, nameEn, prefix, suffix, categories)];
+}
+
 export const STYLES: readonly StyleDefinition[] = [
   mapStyle("bold", "عريض", "Bold", "bold", ["english", "games"]),
   mapStyle("italic", "مائل", "Italic", "italic", ["english", "social"]),
@@ -262,6 +287,65 @@ export const STYLES: readonly StyleDefinition[] = [
   frame("quiet", "إطار هادئ", "Quiet frame", "✧ ", " ✧", ["frames", "fancy"]),
   frame("royal-tatweel", "تطويل ملكي", "Royal tatweel", "♛ ", " ♛", ["frames", "arabi", "fancy"], tatweel),
   frame("game-tatweel", "تطويل للألعاب", "Game tatweel", "꧁", "꧂", ["frames", "arabi", "games"], tatweel),
+  style("double-tatweel", "تطويل مزدوج", "Double tatweel", ["arabi", "fancy"], doubleTatweel),
+  frame("royal-double", "تطويل ملكي مزدوج", "Royal double tatweel", "♛ ", " ♛", ["frames", "arabi", "fancy"], doubleTatweel),
+
+  style("star-open-between", "نجمة مفرغة بين الحروف", "Open star between", ["stars", "symbols", "cute"], (input) => insertBetween(input, "☆")),
+  style("spark-between", "بريق بين الحروف", "Spark between", ["stars", "symbols", "fancy"], (input) => insertBetween(input, "✦")),
+  style("pin-between", "نجمة صغيرة", "Small star", ["stars", "symbols", "fancy"], (input) => insertBetween(input, "✧")),
+  style("heart-solid-between", "قلب ممتلئ بين الحروف", "Solid heart between", ["hearts", "symbols", "cute"], (input) => insertBetween(input, "♥")),
+  style("heart-tip-between", "قلب مدبب", "Heart tip", ["hearts", "symbols", "cute", "social"], (input) => insertBetween(input, "❥")),
+  style("flower-alt-between", "زهرة بين الحروف", "Blossom between", ["cute", "symbols"], (input) => insertBetween(input, "❀")),
+  style("ornament-between", "زخرفة بين الحروف", "Ornament between", ["symbols", "fancy", "arabi"], (input) => insertBetween(input, "༒")),
+  style("petal-between", "بتلة بين الحروف", "Petal between", ["cute", "symbols"], (input) => insertBetween(input, "ꕥ")),
+  style("bolt-between", "برق بين الحروف", "Bolt between", ["games", "symbols"], (input) => insertBetween(input, "⚡")),
+
+  ...side("crown-emoji", "تاج ملون", "Color crown", "👑 ", " 👑", ["frames", "fancy", "arabi"], true),
+  ...side("fleur", "شعار", "Fleur", "⚜️ ", " ⚜️", ["frames", "fancy", "arabi"], true),
+  ...side("gem", "جوهرة", "Gem", "💎 ", " 💎", ["frames", "fancy"], true),
+  ...side("skull", "جمجمة", "Skull", "💀 ", " 💀", ["frames", "games"], true),
+  ...side("sword-emoji", "سيف ملون", "Color sword", "⚔️ ", " ⚔️", ["frames", "games", "arabi"], true),
+  ...side("bolt", "برق", "Lightning", "⚡ ", " ⚡", ["frames", "games"], true),
+  ...side("trophy", "كأس", "Trophy", "🏆 ", " 🏆", ["frames", "games"]),
+  ...side("heart-solid", "إطار قلب ممتلئ", "Solid heart frame", "♥ ", " ♥", ["frames", "hearts", "cute"], true),
+  ...side("heart-tip", "قلب مدبب", "Heart-tip frame", "❥ ", " ❥", ["frames", "hearts", "cute", "social"], true),
+  ...side("heart-pink", "قلب وردي", "Pink heart", "💗 ", " 💗", ["frames", "hearts", "cute"], true),
+  ...side("heart-blue", "قلب أزرق", "Blue heart", "💙 ", " 💙", ["frames", "hearts", "social"]),
+  ...side("heart-purple", "قلب بنفسجي", "Purple heart", "💜 ", " 💜", ["frames", "hearts"]),
+  ...side("heart-white", "قلب أبيض", "White heart", "🤍 ", " 🤍", ["frames", "hearts", "cute"]),
+  ...side("heart-glow", "قلب لامع", "Glowing heart", "💖 ", " 💖", ["frames", "hearts", "cute"]),
+  ...side("black-heart", "قلب أسود", "Black heart", "🖤 ", " 🖤", ["frames", "hearts", "fancy"]),
+  ...side("star-open", "إطار نجمة مفرغة", "Open-star frame", "☆ ", " ☆", ["frames", "stars", "cute"], true),
+  ...side("star-pin", "نجمة دقيقة", "Pin star", "✩ ", " ✩", ["frames", "stars"]),
+  ...side("star-burst", "نجمة مزخرفة", "Burst star", "✪ ", " ✪", ["frames", "stars", "games"]),
+  ...side("star-glow", "نجمة لامعة", "Glowing star", "🌟 ", " 🌟", ["frames", "stars"]),
+  ...side("spark-emoji", "شرارة", "Spark emoji", "💫 ", " 💫", ["frames", "stars", "fancy"]),
+  ...side("flower-alt", "زهرة خط", "Line flower", "❀ ", " ❀", ["frames", "cute"], true),
+  ...side("blossom", "زهرة", "Blossom", "🌸 ", " 🌸", ["frames", "cute"], true),
+  ...side("rose", "وردة", "Rose", "🌹 ", " 🌹", ["frames", "cute", "hearts"], true),
+  ...side("moon-emoji", "هلال", "Crescent", "🌙 ", " 🌙", ["frames", "cute", "social"], true),
+  ...side("wings-ornament", "أقواس مزخرفة", "Ornament wings", "༺", "༻", ["frames", "fancy", "games", "arabi"], true),
+  ...side("angle", "أقواس زاوية", "Angle brackets", "❮", "❯", ["frames", "fancy"]),
+  ...side("leaf", "أقواس ورق", "Leaf brackets", "⊱", "⊰", ["frames", "cute", "fancy"]),
+  ...side("lion", "أسد", "Lion", "🦁 ", " 🦁", ["frames", "fancy", "games"], true),
+  ...side("eagle", "نسر", "Eagle", "🦅 ", " 🦅", ["frames", "fancy", "games"]),
+  ...side("diamond-blue", "ماسة زرقاء", "Blue diamond", "💠 ", " 💠", ["frames", "fancy"]),
+
+  tatweelFrame("star-frame", "إطار نجوم", "Star frame", "★ ", " ★", ["frames", "stars", "games"]),
+  tatweelFrame("spark-frame", "إطار بريق", "Spark frame", "✦ ", " ✦", ["frames", "stars", "fancy"]),
+  tatweelFrame("heart-frame", "إطار قلوب", "Heart frame", "♡ ", " ♡", ["frames", "hearts", "cute"]),
+  tatweelFrame("flower-frame", "إطار زهور", "Flower frame", "✿ ", " ✿", ["frames", "cute"]),
+  tatweelFrame("bracket-frame", "أقواس", "Brackets", "『 ", " 』", ["frames", "social", "fancy"]),
+  tatweelFrame("swords", "سيوف", "Swords", "⚔ ", " ⚔", ["frames", "games"]),
+  tatweelFrame("diamond", "ماسة", "Diamond", "◆ ", " ◆", ["frames", "fancy"]),
+  tatweelFrame("moon", "قمر", "Moon", "☾ ", " ☽", ["frames", "cute", "social"]),
+  tatweelFrame("box", "إطار مربع", "Box frame", "┌ ", " ┐", ["frames", "arabi"]),
+  tatweelFrame("double-box", "إطار مزدوج", "Double box", "【 ", " 】", ["frames", "fancy"]),
+  tatweelFrame("fire", "نار", "Fire", "🔥 ", " 🔥", ["frames", "games"]),
+  tatweelFrame("butterfly", "فراشة", "Butterfly", "🦋 ", " 🦋", ["frames", "cute"]),
+  tatweelFrame("music", "موسيقى", "Music", "♫ ", " ♫", ["frames", "social"]),
+  tatweelFrame("gold-emoji", "بريق ذهبي", "Gold sparkle", "✨ ", " ✨", ["frames", "fancy", "stars"]),
+  tatweelFrame("quiet", "إطار هادئ", "Quiet frame", "✧ ", " ✧", ["frames", "fancy"]),
 ];
 
 const byId = new Map(STYLES.map((item) => [item.id, item]));

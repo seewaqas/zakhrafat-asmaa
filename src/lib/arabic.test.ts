@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addHarakat, stripTashkeel, tatweel } from "./arabic.ts";
+import { addHarakat, doubleTatweel, stripTashkeel, tatweel } from "./arabic.ts";
 import { graphemes } from "./transform.ts";
 
 test("tatweel joins dual letters and stops before a final dal", () => {
@@ -13,6 +13,13 @@ test("tatweel skips right-joining zay and still joins yeh", () => {
 
 test("lam-alef stays a ligature", () => {
   assert.equal(tatweel("لا"), "لا");
+  assert.equal(doubleTatweel("لا"), "لا");
+});
+
+test("double tatweel inserts two joins and skips latin", () => {
+  assert.equal(doubleTatweel("محمد"), "م\u0640\u0640ح\u0640\u0640م\u0640\u0640د");
+  assert.equal(doubleTatweel("زيد"), "زي\u0640\u0640د");
+  assert.equal(doubleTatweel("Ahmed"), "Ahmed");
 });
 
 test("digits and latin never receive tatweel", () => {
